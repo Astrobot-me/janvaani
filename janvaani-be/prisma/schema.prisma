@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum COMPLAINT_STATUS {
+  VERIFIED
+  NOT_VERIFIED
+  REJECTED
+  PENDING_RESOLUTION
+  REDIRECTED
+  ALLOCATED
+  RESOLVED
+  SPAM
+}
+
+model User {
+  id         String      @id @default(cuid())
+  first_name String
+  last_name  String
+  aadhaar_no Int         @unique
+  avatar_url String
+  city       String
+  address    String
+  pincode    String      @db.VarChar(6)
+  complaits  Complaint[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Reward    Reward?
+}
+
+model Complaint {
+  id               String           @id @default(cuid())
+  title            String           @db.VarChar(255)
+  description      String
+  complaint_status COMPLAINT_STATUS @default(NOT_VERIFIED)
+  image_url        String[]
+  addressId        String           @unique
+  reportedAddress  Address          @relation(fields: [addressId], references: [id])
+
+  reportedUserId String @unique
+  relation       User   @relation(fields: [reportedUserId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Reward    Reward?
+}
+
+model Address {
+  id        String     @id @default(cuid())
+  city      String
+  address   String
+  pincode   Int
+  lat       Float
+  long      Float
+  complaint Complaint?
+}
+
+model Reward {
+  id            String    @id @default(cuid())
+  reward_points Int
+  complaintId   String    @unique
+  relation      Complaint @relation(fields: [complaintId], references: [id])
+
+  userId       String @unique
+  userRelation User   @relation(fields: [userId], references: [id])
+}
