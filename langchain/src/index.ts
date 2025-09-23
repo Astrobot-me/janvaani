@@ -108,7 +108,7 @@ const processYoutubeVideo = async (url : string ) => {
 const main = async  () => {
   try {
     // const paragraph = await generateWithParam("javascript");
-    const paragraph = await processYoutubeVideo("https://youtu.be/BkbOuOv7HxQ?si=KAQ-puJnORCFjZdE");
+    const paragraph = await processYoutubeVideo("https://youtu.be/idrbwnWLJ7w?si=mx5tpP3fdp_lESqu");
 
 
     // The AI's generated text is in the 'content' property of the response
