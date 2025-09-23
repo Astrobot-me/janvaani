@@ -12,6 +12,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@langchain/google-genai": "^0.2.18",
+    "@langchain/groq": "^0.2.4",
     "@prisma/client": "^6.16.2",
     "@supabase/supabase-js": "^2.57.4",
     "@types/cors": "^2.8.19",

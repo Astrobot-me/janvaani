@@ -1,0 +1,29 @@
+{
+  "name": "langchain",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx tsc --build && node --env-file=.env dist/index"
+  },
+  "keywords": [],
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@gomomento/sdk-core": "^1.116.0",
+    "@google-cloud/storage": "^7.17.1",
+    "@langchain/community": "^0.3.56",
+    "@langchain/core": "^0.3.77",
+    "@langchain/google-genai": "^0.2.18",
+    "@langchain/groq": "^0.2.4",
+    "@langchain/textsplitters": "^0.1.0",
+    "@upstash/redis": "^1.35.4",
+    "@vercel/kv": "^3.0.0",
+    "couchbase": "^4.5.0",
+    "typescript": "^5.9.2",
+    "youtubei.js": "^15.1.1",
+    "zod": "^3.25.76"
+  }
+}
