@@ -5,11 +5,18 @@ import {z} from "zod";
 import { YoutubeLoader } from "@langchain/community/document_loaders/web/youtube";
 import { load } from "@langchain/community/load";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { image_url } from "./constant.js";
+import { HumanMessage } from "@langchain/core/messages";
 
 
 // We tell LangChain to use Groq and provide our API key.
 const model = new ChatGroq({
     model: "llama-3.3-70b-versatile", // Using the powerful 70B Llama 3 model
+    //@ts-ignore
+    apiKey: process.env.GROQ_API_KEY as string,
+});
+const imageModel = new ChatGroq({
+    model: "meta-llama/llama-4-scout-17b-16e-instruct", // Using the powerful 70B Llama 3 model
     //@ts-ignore
     apiKey: process.env.GROQ_API_KEY as string,
 });
@@ -105,16 +112,65 @@ const processYoutubeVideo = async (url : string ) => {
 }
 
 
+const generateWithImage = async (image_url:string) => {
+
+    const prompt = new PromptTemplate({ 
+        template: "You are an smart civic issues assitant and you work is to look and find the issues you see on the image mentioned {image_url} , returning the issue which you think is the accurate one as per image  ", 
+        inputVariables: ["image_url"]
+    })
+
+    const chain = prompt.pipe(model) ; 
+
+    const res = await chain.invoke({ 
+        image_url
+    }) 
+
+    return res
+}
+
+
+const civicIssueSchema = z.object({ 
+    title: z.string().describe("This should contain the issue title which you find most relevant in the image ,strictly just one") , 
+    description:z.string().describe("Explain the issues which you pick, and explain it in details"),  
+    urgency: z.string().describe("Put the urgency either urgent , not_urgent, or normal_urgency")
+})
+
+const processImage = async (image_url:string)  => {
+    const message = new HumanMessage({
+        content: [
+            { type: "text", text: "Analyze the image at this URL, enlist series of issues & Rank them according to most problematic to less problematic and return the most problematic one ." },
+            {
+            type: "image_url",
+            image_url: { url: image_url },
+            },
+        ],
+    });
+
+     const mess = new HumanMessage(
+            `Analyze the image at this URL: ${image_url}. 
+            Enlist series of issues & rank them according to most problematic to less problematic. 
+            Return the most problematic one.`
+        );
+
+    const parsedOutputModel = imageModel.withStructuredOutput(civicIssueSchema) 
+
+    const res = await parsedOutputModel.invoke([message])
+
+    return res
+}
+
 const main = async  () => {
   try {
     // const paragraph = await generateWithParam("javascript");
-    const paragraph = await processYoutubeVideo("https://youtu.be/idrbwnWLJ7w?si=mx5tpP3fdp_lESqu");
+    // const paragraph = await processYoutubeVideo("https://youtu.be/idrbwnWLJ7w?si=mx5tpP3fdp_lESqu");
+    // const paragraph = await generateWithImage(image_url);
+    const paragraph = await processImage(image_url);
 
 
     // The AI's generated text is in the 'content' property of the response
     console.log("\n--- AI Response ---");
     console.log(paragraph);
-    console.log(paragraph.content);
+    // console.log(paragraph.content);
     console.log("-------------------\n");
   } catch (error : any) {
     console.error("Error:", error.message);
